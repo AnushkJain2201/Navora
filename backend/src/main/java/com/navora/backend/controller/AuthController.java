@@ -3,7 +3,7 @@ package com.navora.backend.controller;
 import com.navora.backend.dto.AuthResponseDto;
 import com.navora.backend.dto.LoginRequestDto;
 import com.navora.backend.dto.RegisterRequestDto;
-import com.navora.backend.security.AuthService;
+import com.navora.backend.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

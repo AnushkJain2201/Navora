@@ -1,10 +1,11 @@
-package com.navora.backend.security;
+package com.navora.backend.service;
 
 import com.navora.backend.dto.AuthResponseDto;
 import com.navora.backend.dto.LoginRequestDto;
 import com.navora.backend.dto.RegisterRequestDto;
 import com.navora.backend.entity.User;
 import com.navora.backend.repository.UserRepository;
+import com.navora.backend.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
