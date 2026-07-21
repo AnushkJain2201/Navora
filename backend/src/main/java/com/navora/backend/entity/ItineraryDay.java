@@ -2,7 +2,7 @@ package com.navora.backend.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
-import java.util.UUID;;
+import java.util.UUID;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
