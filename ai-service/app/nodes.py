@@ -7,6 +7,8 @@ from app.models import ParsedIntent
 from langchain.chat_models import init_chat_model
 import os
 
+## Intent Parsing Node
+
 intent_llm = init_chat_model(
     "gpt-4o-mini",
     model_provider="openai",
@@ -34,3 +36,30 @@ def parse_intent(state: TripState)-> dict:
         "duration_days": result.duration_days,
         "budget": result.budget
     }
+
+## Clarification Asking Node
+
+def ask_clarification(state: TripState) -> dict:
+    missing = []
+
+    if not state.get("destination"):
+        missing.append("destination")
+    
+    if not state.get("duration_days"):
+        missing.append("duration_days")
+    
+    if not state.get("budget"):
+        missing.append("budget")
+    
+    message = (
+        f"I need a bit more information to plan your trip. "
+        f"Could you tell me your {', '.join(missing)}?"
+    )
+    
+    return {"clarification_message": message}
+
+## Routing Function
+def route_after_intent(state: TripState) -> str:
+    if state.get("destination") and state.get("duration_days") and state.get("budget"):
+        return "generate_itinerary"
+    return "ask_clarification"
