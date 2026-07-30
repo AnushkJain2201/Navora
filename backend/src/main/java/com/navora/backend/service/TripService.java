@@ -1,8 +1,8 @@
 package com.navora.backend.service;
 
-import com.navora.backend.dto.TripRequestDto;
-import com.navora.backend.dto.TripResponseDto;
-import com.navora.backend.dto.TripSummaryDto;
+import com.navora.backend.dto.*;
+import com.navora.backend.entity.ItineraryDay;
+import com.navora.backend.entity.ItineraryStop;
 import com.navora.backend.entity.Trip;
 import com.navora.backend.entity.User;
 import com.navora.backend.repository.TripRepository;
@@ -24,18 +24,71 @@ public class TripService {
         this.tripRepository = tripRepository;
     }
 
-    public TripResponseDto planTrip(String userEmail, TripRequestDto tripRequestDto) {
+    public TripPlanResultDto planTrip(String userEmail, TripRequestDto tripRequestDto) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found."));
 
-        TripResponseDto aiResponse = aiServiceClient.generateTrip(tripRequestDto);
+        AiTripPlanResponseDto aiResponse = aiServiceClient.generateTrip(tripRequestDto);
 
-        // Placeholder values until the Phase 3 parses structured fields from the AI response
+        if(aiResponse.itinerary() == null) {
+            return new TripPlanResultDto(null, null, null, null, null, aiResponse.clarificationMessage());
+        }
 
-        Trip trip = new Trip(user, "Unknown", 0, BigDecimal.ZERO);
+        Trip trip = new Trip(
+                user,
+                aiResponse.destination(),
+                aiResponse.durationDays(),
+                BigDecimal.valueOf(aiResponse.budget())
+        );
+
+        for (AiItineraryDayDto dayDto: aiResponse.itinerary()) {
+            ItineraryDay day = new ItineraryDay(trip, dayDto.dayNumber(), null);
+
+            int orderIndex = 0;
+            for (AiItineraryStopDto stopDto: dayDto.stops()) {
+                ItineraryStop stop = new ItineraryStop(
+                        day,
+                        stopDto.name(),
+                        stopDto.description(),
+                        stopDto.estimatedDurationHours() != null
+                                ? BigDecimal.valueOf(stopDto.estimatedDurationHours())
+                                : null,
+                        orderIndex++
+                );
+                day.getStops().add(stop);
+            }
+
+            trip.getItineraryDays().add(day);
+        }
+
         tripRepository.save(trip);
 
-        return aiResponse;
+        return toResultDto(trip);
+    }
+
+    private TripPlanResultDto toResultDto(Trip trip) {
+        List<ItineraryDayDto> dayDtos = trip.getItineraryDays().stream()
+                .map(day -> new ItineraryDayDto(
+                        day.getId(),
+                        day.getDayNumber(),
+                        day.getStops().stream()
+                                .map(stop -> new ItineraryStopDto(
+                                        stop.getId(),
+                                        stop.getLandmarkName(),
+                                        stop.getDescription(),
+                                        stop.getEstimatedDurationHours(),
+                                        stop.getOrderIndex()))
+                                .toList()))
+                .toList();
+
+        return new TripPlanResultDto(
+                trip.getId(),
+                trip.getCountry(),
+                trip.getDurationDays(),
+                trip.getBudget(),
+                dayDtos,
+                null
+        );
     }
 
     public List<TripSummaryDto> getTripsForUser(String userEmail) {

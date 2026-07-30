@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
+from langchain.chat_models import init_chat_model
 from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv(override=True)
@@ -13,7 +13,12 @@ os.environ["LANGSMITH_PROJECT"] = os.getenv("LANGSMITH_PROJECT") or os.getenv("L
 ## Usually optional for hosted LangSmith, but safe to set
 os.environ["LANGSMITH_ENDPOINT"] = os.getenv("LANGSMITH_ENDPOINT")
 
-llm = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4o-mini", temperature=0.7)
+llm = init_chat_model(
+    "gpt-4o-mini",
+    model_provider="openai",
+    api_key=os.getenv("OPENAI_API_KEY"),
+    temperature=0.7,
+)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are an exper travel assistant. Answer the following question."),

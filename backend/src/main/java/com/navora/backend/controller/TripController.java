@@ -1,7 +1,7 @@
 package com.navora.backend.controller;
 
+import com.navora.backend.dto.TripPlanResultDto;
 import com.navora.backend.dto.TripRequestDto;
-import com.navora.backend.dto.TripResponseDto;
 import com.navora.backend.dto.TripSummaryDto;
 import com.navora.backend.service.TripService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,13 +25,12 @@ public class TripController {
     }
 
     @PostMapping("/plan")
-    public ResponseEntity<TripResponseDto> planTrip(
+    public ResponseEntity<TripPlanResultDto> planTrip(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody TripRequestDto tripRequestDto
-            ) {
-        TripResponseDto tripResponseDto = tripService.planTrip(userDetails.getUsername(), tripRequestDto);
-
-        return ResponseEntity.status(HttpStatus.OK).body(tripResponseDto);
+            @RequestBody TripRequestDto request
+    ) {
+        TripPlanResultDto response = tripService.planTrip(userDetails.getUsername(), request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
