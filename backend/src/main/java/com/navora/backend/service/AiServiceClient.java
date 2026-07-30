@@ -1,7 +1,7 @@
 package com.navora.backend.service;
 
+import com.navora.backend.dto.AiTripPlanResponseDto;
 import com.navora.backend.dto.TripRequestDto;
-import com.navora.backend.dto.TripResponseDto;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,12 +17,12 @@ public class AiServiceClient {
                 .build();
     }
 
-    public TripResponseDto generateTrip(TripRequestDto request) {
+    public AiTripPlanResponseDto generateTrip(TripRequestDto request) {
         return webClient.post()
                 .uri("/generate")
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(TripResponseDto.class)
+                .bodyToMono(AiTripPlanResponseDto.class)
                 .block();
     }
 }

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from pydantic import Field
 from typing import Optional
 from pydantic import BaseModel
@@ -35,3 +35,11 @@ class ItineraryDay(BaseModel):
 class GeneratedItinerary(BaseModel):
     days: List[ItineraryDay] = Field(description="The full day-by-day plan")
     budget_note: str = Field(description="A brief note on how the budget was considered in planning")
+
+# TripResponse — this is the external-facing response model. It is deliberately richer and more user-friendly than the internal TripState.
+class TripPlanResponse(BaseModel):
+    destination: Optional[str] = None
+    duration_days: Optional[int] = None
+    budget: Optional[float] = None
+    itinerary: Optional[List[Dict]] = None
+    clarification_message: Optional[str] = None    
