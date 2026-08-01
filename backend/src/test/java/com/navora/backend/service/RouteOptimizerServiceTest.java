@@ -26,4 +26,25 @@ class RouteOptimizerServiceTest {
         // Starting at A (first in list), nearest neighbor should visit B, then C, then D
         assertEquals(List.of(a, b, c, d), result);
     }
+
+    @Test
+    void twoOptImprovesOnPoorNearestNeighborRoute() {
+        RouteOptimizerService optimizer = new RouteOptimizerService();
+
+        // A "trap" layout: nearest-neighbor greedily goes A -> B -> C,
+        // stranding D far away, producing a long final leg C -> D.
+        // The actual shortest path visiting all 4 is A -> B -> D -> C or similar.
+        GeocodedStopDto a = new GeocodedStopDto(0, "A", new GeoCoordinateDto(0.0, 0.0));
+        GeocodedStopDto b = new GeocodedStopDto(1, "B", new GeoCoordinateDto(0.0, 1.0));
+        GeocodedStopDto c = new GeocodedStopDto(2, "C", new GeoCoordinateDto(1.0, 1.0));
+        GeocodedStopDto d = new GeocodedStopDto(3, "D", new GeoCoordinateDto(1.0, 0.0));
+
+        List<GeocodedStopDto> nnRoute = List.of(a, b, c, d);
+
+        double nnDistance = optimizer.calculateTotalDistanceForTest(nnRoute);
+        List<GeocodedStopDto> improvedRoute = optimizer.twoOptImprove(nnRoute);
+        double improvedDistance = optimizer.calculateTotalDistanceForTest(improvedRoute);
+
+        assertTrue(improvedDistance <= nnDistance);
+    }
 }
