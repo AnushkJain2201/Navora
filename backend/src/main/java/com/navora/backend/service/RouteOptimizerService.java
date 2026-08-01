@@ -96,4 +96,9 @@ public class RouteOptimizerService {
         newRoute.addAll(route.subList(j + 1, route.size()));
         return newRoute;
     }
+
+    public List<GeocodedStopDto> optimizeRoute(List<GeocodedStopDto> stops) {
+        List<GeocodedStopDto> nearestNeighborRoute = nearestNeighbourRoute(stops);
+        return twoOptImprove(nearestNeighborRoute);
+    }
 }
