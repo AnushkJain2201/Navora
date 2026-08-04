@@ -1,16 +1,17 @@
-// import TripRequestForm from "@/components/TripRequestForm"
-import { useAuth } from "./context/AuthContext"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import LoginPage from "./pages/LoginPage"
+import RegisterPage from "./pages/RegisterPage"
 
 function App() {
-	const { user, isAuthenticated, logout } = useAuth()
-	return (
-		<div className="p-8">
-			<h1 className="text-3xl font-bold text-blue-600">Navora</h1>
-			<p>Authenticated: {isAuthenticated ? "Yes" : "No"}</p>
-			{user && <p>Welcome, {user.name}</p>}
-			{isAuthenticated && <button onClick={logout}>Log out</button>}
-		</div>
-	)
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/" element={<div className="p-8">Home (placeholder)</div>} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
 export default App
