@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { TripPlannerForm } from "../components/TripPlannerForm"
+import { ItineraryDisplay } from "../components/ItineraryDisplay"
 import type { TripPlanResponse } from "../api/tripApi"
 
 export default function HomePage() {
@@ -20,18 +21,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 space-y-6">
         <TripPlannerForm onTripPlanned={setLastTrip} />
+        {lastTrip && <ItineraryDisplay trip={lastTrip} />}
       </div>
-
-      {lastTrip && lastTrip.itineraryDays && (
-        <div className="mt-6">
-          <p className="text-sm text-muted-foreground">
-            Trip planned: {lastTrip.destination}, {lastTrip.durationDays} days —
-            itinerary display coming in 5e.
-          </p>
-        </div>
-      )}
     </div>
   )
 }
