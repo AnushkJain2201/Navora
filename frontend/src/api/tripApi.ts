@@ -1,6 +1,6 @@
 const BASE_URL = "http://localhost:8080";
 
-interface TripPlanResponse {
+export interface TripPlanResponse {
     tripId: string | null
     destination: string | null
     durationDays: number | null
@@ -9,13 +9,13 @@ interface TripPlanResponse {
     clarificationMessage: string | null
 }
 
-interface ItineraryDay {
+export interface ItineraryDay {
   id: string
   dayNumber: number
   stops: ItineraryStop[]
 }
 
-interface ItineraryStop {
+export interface ItineraryStop {
   id: string
   landmarkName: string
   description: string
@@ -34,8 +34,9 @@ export async function planTrip(query: string, token: string): Promise<TripPlanRe
     });
 
     if (!response.ok) {
-        throw new Error("Failed to plan trip");
+        const errorBody = await response.json().catch(() => ({ error: "Request failed" }))
+        throw new Error(errorBody.error ?? `Request failed: ${response.status}`)
     }
-
+    
     return response.json();
 }
