@@ -27,6 +27,7 @@ public class ItineraryDay {
     private LocalDate visitDate;
 
     @OneToMany(mappedBy = "itineraryDay", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("orderIndex ASC")
     private List<ItineraryStop> stops = new ArrayList<>();
 
     protected ItineraryDay() {}

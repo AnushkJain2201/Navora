@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { TripPlannerForm } from "../components/TripPlannerForm"
 import { ItineraryDisplay } from "../components/ItineraryDisplay"
 import type { TripPlanResponse } from "../api/tripApi"
+import { TripMap } from "@/components/TripMap"
 
 export default function HomePage() {
   const { user, logout } = useAuth()
@@ -23,8 +24,14 @@ export default function HomePage() {
 
       <div className="mt-8 space-y-6">
         <TripPlannerForm onTripPlanned={setLastTrip} />
-        {lastTrip && <ItineraryDisplay trip={lastTrip} />}
       </div>
+
+      {lastTrip && lastTrip.itineraryDays && (
+        <div className="space-y-6">
+          <ItineraryDisplay trip={lastTrip} />
+          <TripMap itineraryDays={lastTrip.itineraryDays} />
+        </div>
+      )}
     </div>
   )
 }

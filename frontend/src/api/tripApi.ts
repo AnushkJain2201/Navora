@@ -10,17 +10,19 @@ export interface TripPlanResponse {
 }
 
 export interface ItineraryDay {
-  id: string
-  dayNumber: number
-  stops: ItineraryStop[]
+    id: string
+    dayNumber: number
+    stops: ItineraryStop[]
 }
 
 export interface ItineraryStop {
-  id: string
-  landmarkName: string
-  description: string
-  estimatedDurationHours: number | null
-  orderIndex: number
+    id: string
+    landmarkName: string
+    description: string
+    estimatedDurationHours: number | null
+    orderIndex: number
+    latitude: number | null
+    longitude: number | null
 }
 
 export async function planTrip(query: string, token: string): Promise<TripPlanResponse> {
@@ -37,6 +39,6 @@ export async function planTrip(query: string, token: string): Promise<TripPlanRe
         const errorBody = await response.json().catch(() => ({ error: "Request failed" }))
         throw new Error(errorBody.error ?? `Request failed: ${response.status}`)
     }
-    
+
     return response.json();
 }
