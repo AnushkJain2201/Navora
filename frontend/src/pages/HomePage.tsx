@@ -1,37 +1,35 @@
 import { useState } from "react"
-import { useAuth } from "../context/AuthContext"
-import { Button } from "@/components/ui/button"
 import { TripPlannerForm } from "../components/TripPlannerForm"
 import { ItineraryDisplay } from "../components/ItineraryDisplay"
+import { TripMap } from "../components/TripMap"
+import { Layout } from "../components/Layout"
 import type { TripPlanResponse } from "../api/tripApi"
-import { TripMap } from "@/components/TripMap"
 
 export default function HomePage() {
-  const { user, logout } = useAuth()
-  const [lastTrip, setLastTrip] = useState<TripPlanResponse | null>(null)
+	const [lastTrip, setLastTrip] = useState<TripPlanResponse | null>(null)
 
-  return (
-    <div className="mx-auto max-w-2xl p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Navora</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground">Welcome, {user?.name}</span>
-          <Button variant="outline" onClick={logout}>
-            Log out
-          </Button>
-        </div>
-      </div>
+	return (
+		<Layout>
+			<div className="mx-auto max-w-2xl px-8 py-12">
+				<div className="mb-10">
+					<h1 className="font-display text-4xl font-semibold leading-tight">
+						Tell us where history calls.
+					</h1>
+					<p className="mt-3 text-muted-foreground">
+						Describe a trip in your own words — a destination, a length of stay,
+						a budget — and we'll route you through the sites that made it matter.
+					</p>
+				</div>
 
-      <div className="mt-8 space-y-6">
-        <TripPlannerForm onTripPlanned={setLastTrip} />
-      </div>
+				<TripPlannerForm onTripPlanned={setLastTrip} />
 
-      {lastTrip && lastTrip.itineraryDays && (
-        <div className="space-y-6">
-          <ItineraryDisplay trip={lastTrip} />
-          <TripMap itineraryDays={lastTrip.itineraryDays} />
-        </div>
-      )}
-    </div>
-  )
+				{lastTrip && lastTrip.itineraryDays && (
+					<div className="mt-6 space-y-6">
+						<ItineraryDisplay trip={lastTrip} />
+						<TripMap itineraryDays={lastTrip.itineraryDays} />
+					</div>
+				)}
+			</div>
+		</Layout>
+	)
 }
