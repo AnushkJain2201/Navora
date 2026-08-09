@@ -34,6 +34,7 @@ public class Trip {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("dayNumber ASC")
     private List<ItineraryDay> itineraryDays = new ArrayList<>();
 
     protected Trip() {}

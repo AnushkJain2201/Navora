@@ -67,7 +67,6 @@ public class TripService {
 
         for (int i = 0; i < dayDto.stops().size(); i++) {
             final int stopIndex = i;
-
             AiItineraryStopDto stopDto = dayDto.stops().get(i);
             Optional<GeoCoordinateDto> coordinate =
                     geocodingService.geocode(stopDto.name() + ", " + destination);
@@ -75,6 +74,7 @@ public class TripService {
             coordinate.ifPresent(coord ->
                     geocodedStops.add(new GeocodedStopDto(stopIndex, stopDto.name(), coord)));
         }
+
         List<ItineraryStop> stops = new ArrayList<>();
 
         if (geocodedStops.size() == dayDto.stops().size() && geocodedStops.size() > 1) {
@@ -84,21 +84,30 @@ public class TripService {
             int orderIndex = 0;
             for (GeocodedStopDto geocodedStop : optimizedOrder) {
                 AiItineraryStopDto original = dayDto.stops().get(geocodedStop.originalIndex());
-                stops.add(buildStop(day, original, orderIndex++));
+                stops.add(buildStop(day, original, orderIndex++, geocodedStop.coordinate()));
             }
         } else {
-            // One or more stops failed to geocode — fall back to the AI's original order
-            int orderIndex = 0;
-            for (AiItineraryStopDto stopDto : dayDto.stops()) {
-                stops.add(buildStop(day, stopDto, orderIndex++));
+            // Some stops failed to geocode, or too few to optimize —
+            // keep the AI's original order, but still attach any coordinates we DID get
+            for (int i = 0; i < dayDto.stops().size(); i++) {
+                final int stopIndex = i;
+                AiItineraryStopDto stopDto = dayDto.stops().get(i);
+
+                GeoCoordinateDto coordinate = geocodedStops.stream()
+                        .filter(g -> g.originalIndex() == stopIndex)
+                        .map(GeocodedStopDto::coordinate)
+                        .findFirst()
+                        .orElse(null);
+
+                stops.add(buildStop(day, stopDto, i, coordinate));
             }
         }
 
         return stops;
     }
 
-    private ItineraryStop buildStop(ItineraryDay day, AiItineraryStopDto stopDto, int orderIndex) {
-        return new ItineraryStop(
+    private ItineraryStop buildStop(ItineraryDay day, AiItineraryStopDto stopDto, int orderIndex, GeoCoordinateDto coordinateDto) {
+        ItineraryStop stop = new ItineraryStop(
                 day,
                 stopDto.name(),
                 stopDto.description(),
@@ -107,6 +116,11 @@ public class TripService {
                         : null,
                 orderIndex
         );
+        if (coordinateDto != null) {
+            stop.setLatitude(BigDecimal.valueOf(coordinateDto.latitude()));
+            stop.setLongitude(BigDecimal.valueOf(coordinateDto.longitude()));
+        }
+        return stop;
     }
 
     private TripPlanResultDto toResultDto(Trip trip) {
@@ -120,7 +134,9 @@ public class TripService {
                                         stop.getLandmarkName(),
                                         stop.getDescription(),
                                         stop.getEstimatedDurationHours(),
-                                        stop.getOrderIndex()))
+                                        stop.getOrderIndex(),
+                                        stop.getLatitude(),
+                                        stop.getLongitude()))
                                 .toList()))
                 .toList();
 

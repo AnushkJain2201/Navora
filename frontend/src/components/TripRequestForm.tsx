@@ -1,22 +1,23 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { planTrip } from "../api/tripApi";
 
 function TripRequestForm() {
-    const [query, setQuery] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [response, setResponse] = useState(null);
-    const [error, setError] = useState(null);
+    const [query, setQuery] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
+    const [response, setResponse] = useState<string>("");
+    const [error, setError] = useState<string>("");
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError("");
         setResponse("");
 
         try {
-            const data = await planTrip(query);
+            const token = localStorage.getItem("token") ?? "";
+            const data = await planTrip(query, token);
             console.log(data);
-            setResponse(data.raw_response);
+            setResponse(JSON.stringify(data, null, 2));
         } catch (err) {
             setError("Something went wrong. Check the console.");
             console.error(err);
@@ -39,7 +40,7 @@ function TripRequestForm() {
             </form>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
-            {response && <p>{response}</p>}
+            {response && <pre>{response}</pre>}
         </div>
     )
 }

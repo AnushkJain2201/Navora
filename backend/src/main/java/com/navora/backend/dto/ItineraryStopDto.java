@@ -8,5 +8,7 @@ public record ItineraryStopDto(
         String landmarkName,
         String description,
         BigDecimal estimatedDurationHours,
-        Integer orderIndex
+        Integer orderIndex,
+        BigDecimal latitude,
+        BigDecimal longitude
 ) {}

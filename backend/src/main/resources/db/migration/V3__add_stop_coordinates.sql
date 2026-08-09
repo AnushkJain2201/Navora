@@ -1,0 +1,3 @@
+ALTER TABLE itinerary_stops
+    ADD COLUMN latitude NUMERIC(9, 6),
+    ADD COLUMN longitude NUMERIC(9, 6);
