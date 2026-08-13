@@ -1,0 +1,33 @@
+SELECT
+    id,
+    name,
+    category,
+    ST_Distance(location, ST_SetSRID(ST_MakePoint(75.8513, 26.9855), 4326)::geography) AS distance_meters
+FROM landmarks
+WHERE ST_DWithin(
+    location,
+    ST_SetSRID(ST_MakePoint(75.8513, 26.9855), 4326)::geography,
+    2000
+)
+ORDER BY distance_meters ASC;
+
+Walking through the key functions:
+
+ST_DWithin(location, point, 2000) — this is the actual "nearby" filter: "is location within 2000 meters of point?" This is what the GiST index accelerates — without it, Postgres would have to calculate the distance to every single row in the table to answer this; with it, Postgres can efficiently narrow down candidates first.
+
+ST_SetSRID(ST_MakePoint(75.8513, 26.9855), 4326)::geography — same point-construction pattern from your load_landmarks.py script (longitude first!), just written directly in SQL this time instead of Python.
+
+ST_Distance(...) — separately calculates the exact distance in meters for each matching row, which is what lets us ORDER BY distance_meters ASC — showing the closest landmark first, exactly what the camera feature will need ("which landmark is this most likely to be").
+
+2000 — the search radius in meters. 2km is a reasonable starting radius for "how far might GPS accuracy be off, plus how far might someone be standing from a large monument" — we can tune this later once we see real results.
+
+SELECT
+    id,
+    name,
+    category,
+    ST_Distance(location, ST_SetSRID(ST_MakePoint(75.8513, 26.9855), 4326)::geography) AS distance_meters
+FROM landmarks
+ORDER BY location <-> ST_SetSRID(ST_MakePoint(75.8513, 26.9855), 4326)::geography
+LIMIT 5;
+
+This is actually the more useful query shape for Phase 7 — "always give me the closest few candidates," which the vision LLM can then evaluate against the actual photo, rather than a rigid distance cutoff that might return nothing.
