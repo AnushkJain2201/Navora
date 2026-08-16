@@ -8,3 +8,8 @@ venv/
 
 # Ignore mac specific files
 .DS_Store
+
+
+# Ignore python cache files
+__pycache__
+**/__pycache__
