@@ -1,14 +1,15 @@
 package com.navora.backend.dto;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record ScanIdentifyResponseDto(
-        UUID scanId,
+public record ScanSummaryDto(
+        UUID id,
         String imageUrl,
         boolean matched,
         String landmarkName,
         String specificFeature,
-        String generatedContext
+        String generatedContext,
+        LocalDateTime scannedAt
 ) {
 }
