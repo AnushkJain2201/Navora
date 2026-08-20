@@ -1,3 +1,4 @@
+from os import name
 from typing import List, Dict
 from pydantic import Field
 from typing import Optional
@@ -43,3 +44,26 @@ class TripPlanResponse(BaseModel):
     budget: Optional[float] = None
     itinerary: Optional[List[Dict]] = None
     clarification_message: Optional[str] = None    
+
+## Models for the response of scanned pictures
+class LandmarkCandidate(BaseModel):
+    id: str
+    name: str
+    category: str
+    description: str
+
+class ScanIdentifyRequest(BaseModel):
+    image_base64: str
+    candidates: List[LandmarkCandidate]
+
+class IdentifiedLandmark(BaseModel):
+    matched: bool = Field(description="Whether the photo confidently matches within one of the candidate landmark complexes")
+    landmark_id: Optional[str] = Field(default=None, description="The id of the matched parent landmark, if any")
+    landmark_name: Optional[str] = Field(default=None, description="The name of the matched parent landmark, if any")
+    specific_feature: Optional[str] = Field(
+        default=None, description="The specific structure, gate, courtyard, or feature actually visible in the photo, if identifiable (e.g. 'Ganesh Pol', 'Sheesh Mahal'). Null if the photo shows the landmark generally rather than a specific named feature."
+    )
+    confidence_reason: str = Field(description="Brief explanation of the match")
+    generated_context: Optional[str] = Field(
+        default=None, description="small description about the feature and 2-3 specific, interesting facts about exactly what's visible in the photo — the specific feature if one is identified, not a general overview of the parent landmark"
+    )
