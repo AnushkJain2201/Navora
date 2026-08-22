@@ -17,6 +17,9 @@ export function Header() {
                         <span className="text-sm text-muted-foreground">
                             {user?.name}
                         </span>
+                        <Link to="/scan" className="font-display text-2xl font-semibold tracking-tight">
+                            Scan
+                        </Link>
                         <Button variant="outline" size="sm" onClick={logout}>
                             Log out
                         </Button>

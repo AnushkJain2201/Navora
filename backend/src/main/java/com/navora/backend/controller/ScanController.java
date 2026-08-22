@@ -1,6 +1,5 @@
 package com.navora.backend.controller;
 
-import com.navora.backend.dto.NearbyLandmarkDto;
 import com.navora.backend.dto.ScanIdentifyResponseDto;
 import com.navora.backend.dto.ScanSummaryDto;
 import com.navora.backend.service.ImageStorageService;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/scans")
