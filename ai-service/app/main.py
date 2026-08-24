@@ -1,3 +1,6 @@
+from app.nodes import identify_landmark
+from app.models import ScanIdentifyRequest
+from app.models import IdentifiedLandmark
 from app.models import TripPlanResponse
 from app.graph import trip_graph
 from fastapi import FastAPI
@@ -31,3 +34,7 @@ def generate_trip(request: TripRequest):
         itinerary=final_state.get("itinerary"),
         clarification_message=final_state.get("clarification_message"),
     )
+
+@app.post("/identify", response_model=IdentifiedLandmark)
+def identify(request: ScanIdentifyRequest):
+    return identify_landmark(request)

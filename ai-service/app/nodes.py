@@ -1,3 +1,7 @@
+from langchain_core.messages import HumanMessage
+from langchain_core.prompts import message
+from app.models import ScanIdentifyRequest
+from app.models import IdentifiedLandmark
 from app.models import GeneratedItinerary
 from dotenv import load_dotenv
 load_dotenv()
@@ -118,3 +122,47 @@ def generate_itinerary(state: TripState) -> dict:
     itinerary_as_dicts = [day.model_dump() for day in result.days]
     return {"itinerary": itinerary_as_dicts}
 
+# Vision LLM nodes
+vision_llm = init_chat_model(
+    "gpt-4o-mini",
+    model_provider="openai",
+    api_key=os.getenv("OPENAI_API_KEY"),
+    temperature=0.5,
+)
+
+structured_vision_llm = vision_llm.with_structured_output(IdentifiedLandmark)
+
+def identify_landmark(request: ScanIdentifyRequest) -> IdentifiedLandmark:
+    candidates_text = "\n".join(
+        f"ID: {c.id}\tName: {c.name}\tCategory: {c.category}\tDescription: {c.description}" 
+        for c in request.candidates
+    )
+
+    prompt_text = (
+    "You are helping a tourist identify exactly what they're looking at in a photo. "
+    "Based on GPS location, the photo was taken at or near one of these landmarks:\n\n"
+    f"{candidates_text}\n\n"
+    "Look closely at the photo. First, determine which candidate landmark complex it "
+    "belongs to. Then, using your own knowledge of that landmark, identify the SPECIFIC "
+    "feature visible in the photo — for example a particular gate, courtyard, hall, "
+    "mural, or structure — not just the landmark as a whole. Many landmarks like forts "
+    "and palaces have multiple famous named features within them.\n\n"
+    "If you can identify a specific feature, name it explicitly and start with 'you are looking at <specific feature> at <landmark name>' and then write 2-3 interesting facts "
+    "specifically about THAT feature (its history, significance, what to notice about "
+    "its design) — not a general overview of the parent landmark. If you genuinely "
+    "cannot identify a specific feature and the photo just shows the landmark generally, "
+    "say so and give general context instead."
+)
+
+    message = HumanMessage(content=[
+        {"type": "text", "text": prompt_text},
+        {
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/jpg;base64,{request.image_base64}",
+            }
+        }
+    ])
+
+    result: IdentifiedLandmark = structured_vision_llm.invoke([message])
+    return result

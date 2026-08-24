@@ -107,3 +107,16 @@
 <br>
 
 ![Revised Phase 6](images/revised-phase6.png)
+
+<br>
+
+---
+---
+
+<br>
+
+# Revised Phase 7
+
+<br>
+
+![Revised Phase 7](images/revised-phase7.png)
