@@ -5,3 +5,4 @@ langchain-openai
 python-dotenv
 pydantic
 langgraph
+psycopg2-binary

@@ -76,8 +76,14 @@
 # print(json.dumps(result, indent=2))
 
 
-import base64
+# import base64
 
-with open("ganesh-pol.jpg", "rb") as f:
-    encoded = base64.b64encode(f.read()).decode("utf-8")
-    print(encoded)
+# with open("ganesh-pol.jpg", "rb") as f:
+#     encoded = base64.b64encode(f.read()).decode("utf-8")
+#     print(encoded)
+
+from app.retrieval import retrieve_relevant_landmarks
+import json
+
+results = retrieve_relevant_landmarks("About Amber fort Rajasthan.")
+print(json.dumps(results, indent=2, default=str))
