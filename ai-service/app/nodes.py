@@ -1,3 +1,8 @@
+from langchain_core.messages import AIMessage
+from langchain_core.messages import SystemMessage
+from app.retrieval import retrieve_relevant_landmarks
+from app.models import AskResponse
+from app.models import AskRequest
 from langchain_core.messages import HumanMessage
 from langchain_core.prompts import message
 from app.models import ScanIdentifyRequest
@@ -166,3 +171,61 @@ def identify_landmark(request: ScanIdentifyRequest) -> IdentifiedLandmark:
 
     result: IdentifiedLandmark = structured_vision_llm.invoke([message])
     return result
+
+# RAG Chatbot Node
+rag_llm = init_chat_model(
+    "gpt-4o-mini",
+    model_provider="openai",
+    api_key=os.getenv("OPENAI_API_KEY"),
+    temperature=0.5,
+)
+
+def build_context_block(landmarks: list[dict])-> str:
+    if not landmarks:
+        return "No relevant landmarks were found in the database for this question."
+    
+    entries = []
+    for l in landmarks:
+        entries.append(f"- {l['name']} ({l['category']}, {l['country']}): {l['description']}")
+    return "\n".join(entries)
+
+def answer_question(request: AskRequest) -> AskResponse:
+    retrieved = retrieve_relevant_landmarks(request.question, top_k=5)
+    context_block = build_context_block(retrieved)
+    
+    system_prompt = (
+        "You are a knowledgeable guide on the history of India and Egypt, with access to "
+        "a curated database of landmarks. Below is information retrieved from that database "
+        "that may be relevant to the user's question.\n\n"
+        f"Retrieved landmark information:\n{context_block}\n\n"
+        "Guidelines:\n"
+        "1. If the retrieved information is relevant and useful, ground your answer in it, "
+        "and prefer it over your own knowledge when the two might differ on specifics.\n"
+        "2. If the retrieved information is sparse, missing, or not relevant to this "
+        "specific question, answer using your own general historical knowledge instead — "
+        "don't refuse or say you lack information just because the database entry is thin.\n"
+        "3. You may answer general history questions related to India's or Egypt's history "
+        "(rulers, dynasties, events, culture) even if they aren't about a specific landmark "
+        "— for example, questions about historical figures, periods, or events connected "
+        "to these regions.\n"
+        "4. If the question is unrelated to Indian or Egyptian history entirely "
+        "(e.g. general trivia, other countries, unrelated topics), politely decline and "
+        "redirect the user back to what you can help with."
+        "\n\n Strictly following the above guidelines, make the answer to the user's question engaging and prompt the user with follow up questions to keep the conversation going."
+    )
+    
+    messages = [SystemMessage(content=system_prompt)]
+
+    for msg in request.conversation_history[-6:]:
+        if msg.role == "user":
+            messages.append(HumanMessage(content=msg.content))
+        elif msg.role == "assistant":
+            messages.append(AIMessage(content=msg.content))
+
+    messages.append(HumanMessage(content=request.question))
+
+    result = rag_llm.invoke(messages)
+    sources = [l["name"] for l in retrieved]
+
+    return AskResponse(answer=result.content, sources=sources)
+    

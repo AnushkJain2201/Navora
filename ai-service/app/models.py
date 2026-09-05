@@ -67,3 +67,18 @@ class IdentifiedLandmark(BaseModel):
     generated_context: Optional[str] = Field(
         default=None, description="small description about the feature and 2-3 specific, interesting facts about exactly what's visible in the photo — the specific feature if one is identified, not a general overview of the parent landmark"
     )
+
+# Models for RAG chatbot
+class ChatMessageInput(BaseModel):
+    role: str
+    content: str
+
+class AskRequest(BaseModel):
+    question: str
+    conversation_history: List[ChatMessageInput] = []
+
+class AskResponse(BaseModel):
+    answer: str
+    sources: list[str] = Field(description="List of landmarks used to groud this answer.")
+
+
