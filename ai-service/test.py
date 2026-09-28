@@ -76,8 +76,36 @@
 # print(json.dumps(result, indent=2))
 
 
-import base64
+# import base64
 
-with open("ganesh-pol.jpg", "rb") as f:
-    encoded = base64.b64encode(f.read()).decode("utf-8")
-    print(encoded)
+# with open("ganesh-pol.jpg", "rb") as f:
+#     encoded = base64.b64encode(f.read()).decode("utf-8")
+#     print(encoded)
+
+# from app.retrieval import retrieve_relevant_landmarks
+# import json
+
+# results = retrieve_relevant_landmarks("About Amber fort Rajasthan.")
+# print(json.dumps(results, indent=2, default=str))
+
+from app.nodes import answer_question
+from app.models import AskRequest
+
+request = AskRequest(question="who is newton first law of physics", conversation_history=[])
+result = answer_question(request)
+print(result.answer)
+print("Sources:", result.sources)
+
+# print("\n\n\n")
+
+# from app.models import ChatMessageInput
+
+# follow_up = AskRequest(
+#     question="Which of those has the most impressive gardens?",
+#     conversation_history=[
+#         ChatMessageInput(role="user", content="Tell me about Mughal architecture in Rajasthan"),
+#         ChatMessageInput(role="assistant", content=result.answer),
+#     ],
+# )
+# follow_up_result = answer_question(follow_up)
+# print(follow_up_result.answer)

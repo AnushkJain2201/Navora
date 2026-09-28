@@ -1,3 +1,6 @@
+from app.nodes import answer_question
+from app.models import AskRequest
+from app.models import AskResponse
 from app.nodes import identify_landmark
 from app.models import ScanIdentifyRequest
 from app.models import IdentifiedLandmark
@@ -13,6 +16,9 @@ app = FastAPI(title="Navora AI Service")
 def health_check():
     return {"status": "ok"}
 
+@app.post("/ask", response_model=AskResponse)
+def ask(request: AskRequest): 
+    return answer_question(request) 
 
 @app.post("/generate", response_model=TripPlanResponse)
 def generate_trip(request: TripRequest):
