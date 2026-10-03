@@ -16,14 +16,17 @@ public class ImageStorageService {
     private final MinioClient minioClient;
     private final String bucketName;
     private final String endpoint;
+    private final String publicUrl;
 
     public ImageStorageService(
             @Value("${minio.endpoint}") String endpoint,
+            @Value("${minio.public-url}") String publicUrl,
             @Value("${minio.access-key}") String accessKey,
             @Value("${minio.secret-key}") String secretKey,
             @Value("${minio.bucket-name}") String bucketName
     ) {
         this.endpoint = endpoint;
+        this.publicUrl = publicUrl;
         this.bucketName = bucketName;
         this.minioClient = MinioClient.builder()
                 .endpoint(endpoint)
@@ -57,6 +60,6 @@ public class ImageStorageService {
             );
         }
 
-        return String.format("%s/%s/%s", endpoint, bucketName, objectName);
+        return String.format("%s/%s/%s", publicUrl, bucketName, objectName);
     }
 }
