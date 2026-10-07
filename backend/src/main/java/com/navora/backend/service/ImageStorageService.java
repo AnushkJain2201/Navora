@@ -15,7 +15,7 @@ import java.util.UUID;
 public class ImageStorageService {
     private final MinioClient minioClient;
     private final String bucketName;
-    private final String endpoint;
+
     private final String publicUrl;
 
     public ImageStorageService(
@@ -25,7 +25,6 @@ public class ImageStorageService {
             @Value("${minio.secret-key}") String secretKey,
             @Value("${minio.bucket-name}") String bucketName
     ) {
-        this.endpoint = endpoint;
         this.publicUrl = publicUrl;
         this.bucketName = bucketName;
         this.minioClient = MinioClient.builder()
