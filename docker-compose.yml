@@ -69,6 +69,18 @@ services:
       timeout: 5s
       retries: 15
 
+  seed-landmarks:
+    image: postgres:16-alpine
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./infra/postgres/seed-landmarks.sql:/seed-landmarks.sql:ro
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    command: ["psql", "-h", "postgres", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}", "-v", "ON_ERROR_STOP=1", "-f", "/seed-landmarks.sql"]
+    restart: "no"
+
   frontend:
     build:
       context: ./frontend
