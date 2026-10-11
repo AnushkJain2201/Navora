@@ -67,7 +67,17 @@ jobs:
             -e POSTGRES_DB=navora -e POSTGRES_USER=navora_user -e POSTGRES_PASSWORD=navora_pass \
             navora-postgres
           until docker exec pg pg_isready -h localhost -U navora_user -d navora; do sleep 2; done
-      - run: mvn -B test
+      - name: Apply migrations (context startup runs Flyway)
+        run: mvn -B test -Dtest=BackendApplicationTests
+
+      - name: Seed landmarks
+        working-directory: .
+        run: |
+          docker exec -i pg psql -U navora_user -d navora \
+            -v ON_ERROR_STOP=1 < infra/postgres/seed-landmarks.sql
+
+      - name: Run all tests
+        run: mvn -B test
 
   docker-build:
     runs-on: ubuntu-latest
