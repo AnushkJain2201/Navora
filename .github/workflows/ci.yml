@@ -66,10 +66,7 @@ jobs:
           docker run -d --name pg -p 5432:5432 \
             -e POSTGRES_DB=navora -e POSTGRES_USER=navora_user -e POSTGRES_PASSWORD=navora_pass \
             navora-postgres
-          docker run -d --name minio -p 9000:9000 \
-            -e MINIO_ROOT_USER=navora_minio -e MINIO_ROOT_PASSWORD=navora_minio_pass \
-            minio/minio server /data
-          until docker exec pg pg_isready -U navora_user -d navora; do sleep 2; done
+          until docker exec pg pg_isready -h localhost -U navora_user -d navora; do sleep 2; done
       - run: mvn -B test
 
   docker-build:
