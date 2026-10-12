@@ -1,6 +1,6 @@
 import { LoginCredentials, RegisterCredentials, User } from "@/types/auth";
 
-const BASE_URL = "http://localhost:8080";
+import { BASE_URL } from "./config";
 
 interface AuthResponse {
     token: string,
